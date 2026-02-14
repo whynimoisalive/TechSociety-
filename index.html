@@ -17,9 +17,7 @@
             padding: 20px;
         }
 
-        h1,
-        h2,
-        h3 {
+        h1, h2, h3 {
             font-family: 'Times New Roman', serif;
             color: #000;
         }
@@ -29,6 +27,7 @@
             display: flex;
             justify-content: center;
             margin: 20px auto 5px auto;
+            position: relative; /* Essential for the placeholder overlay */
         }
 
         canvas.p5-canvas {
@@ -55,9 +54,7 @@
         }
 
         /* Form inputs */
-        input,
-        select,
-        textarea {
+        input, select, textarea {
             font-family: 'Times New Roman', serif;
             border: 1px solid #767676;
             padding: 4px;
@@ -102,7 +99,6 @@
             height: 100%;
             z-index: 150;
             display: none;
-            /* hidden until button click */
             align-items: center;
             justify-content: center;
             background: transparent;
@@ -165,7 +161,7 @@
             z-index: 20;
         }
 
-        /* Clearing wave   flipped version of ink-transition */
+        /* Clearing wave - flipped version of ink-transition */
         #ink-clear {
             position: fixed;
             top: 0;
@@ -193,28 +189,21 @@
 
 <body>
 
-    <!-- React App (hidden behind) -->
     <div id="react-container">
         <iframe id="react-app-frame" src="/app.html"></iframe>
     </div>
 
-    <!-- ===================== INK ANIMATION OVERLAY ===================== -->
     <div id="ink-overlay">
 
-        <!-- Hidden video source (green screen) -->
         <video id="character-video" muted playsinline loop>
             <source src="/Video Project 4.mp4" type="video/mp4">
         </video>
 
-        <!-- Main character display -->
         <div id="character-container">
             <canvas id="character-canvas"></canvas>
             <canvas id="dead-face-canvas"></canvas>
         </div>
 
-
-
-        <!-- Ink sauce splash SVG -->
         <svg version="1.1" id="ink-sauce" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
             x="0px" y="0px" width="514.312px" height="1089.044px" viewBox="0 0 514.312 1089.044"
             enable-background="new 0 0 514.312 1089.044" xml:space="preserve">
@@ -278,7 +267,6 @@
             </g>
         </svg>
 
-        <!-- Ink transition SVG (fills screen) -->
         <svg version="1.1" id="ink-transition" xmlns="http://www.w3.org/2000/svg"
             xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="1920px" height="3000px"
             viewBox="0 0 1920 3000" enable-background="new 0 0 1920 3000" xml:space="preserve">
@@ -342,9 +330,6 @@
             <rect fill="#3845a8" width="1920" height="2710.882" />
         </svg>
     </div>
-    <!-- ===================== END INK OVERLAY ===================== -->
-
-    <!-- ===================== INK CLEAR OVERLAY (flipped wipe) ===================== -->
     <div id="ink-clear">
         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
             viewBox="0 2600 1920 400" xml:space="preserve">
@@ -401,7 +386,6 @@
         </svg>
     </div>
 
-    <!-- I Like CSS Button (now in normal flow above the header) -->
     <button id="css-btn">I like CSS</button>
 
     <header>
@@ -431,10 +415,50 @@
 
     <br>
 
-    <section id="match-section" style="opacity: 0; transition: opacity 0.3s ease;">
+    <section id="match-section" style="opacity: 1; transition: opacity 0.3s ease;">
         <h2>Match the Following</h2>
         <p>Click a row in the left table, then click the matching row in the right table.</p>
-        <div id="sketch-holder" style="min-height: 350px;"></div>
+        <div id="sketch-holder" style="min-height: 350px; position: relative;">
+            <div id="p5-placeholder"
+                style="width:800px; height:350px; margin: 0 auto; position:relative; font-family: 'Times New Roman', serif;">
+                <div
+                    style="position:absolute; top:20px; left:130px; width:240px; height:30px; background:#ebebeb; border:1px solid #000; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:20px; box-sizing:border-box; color:#000;">
+                    Term</div>
+                <div
+                    style="position:absolute; top:20px; left:430px; width:330px; height:30px; background:#ebebeb; border:1px solid #000; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:20px; box-sizing:border-box; color:#000;">
+                    Definition</div>
+
+                <div style="position:absolute; top:50px; left:130px; display:flex; flex-direction:column;">
+                    <div
+                        style="width:240px; height:70px; border:1px solid #000; background:#fff; display:flex; align-items:center; padding-left:10px; box-sizing:border-box; font-size:16px; color:#000; text-align:left; margin-top:-1px;">
+                        Supervised Learning</div>
+                    <div
+                        style="width:240px; height:70px; border:1px solid #000; background:#fff; display:flex; align-items:center; padding-left:10px; box-sizing:border-box; font-size:16px; color:#000; text-align:left; margin-top:-1px;">
+                        Unsupervised Learning</div>
+                    <div
+                        style="width:240px; height:70px; border:1px solid #000; background:#fff; display:flex; align-items:center; padding-left:10px; box-sizing:border-box; font-size:16px; color:#000; text-align:left; margin-top:-1px;">
+                        Deep Learning</div>
+                    <div
+                        style="width:240px; height:70px; border:1px solid #000; background:#fff; display:flex; align-items:center; padding-left:10px; box-sizing:border-box; font-size:16px; color:#000; text-align:left; margin-top:-1px;">
+                        Reinforcement Learning</div>
+                </div>
+
+                <div style="position:absolute; top:50px; left:430px; display:flex; flex-direction:column;">
+                    <div
+                        style="width:330px; height:70px; border:1px solid #000; background:#fff; display:flex; align-items:center; padding-left:10px; box-sizing:border-box; font-size:16px; color:#000; text-align:left; margin-top:-1px; line-height:1.2;">
+                        A. Maximizes reward signal through trial & error.</div>
+                    <div
+                        style="width:330px; height:70px; border:1px solid #000; background:#fff; display:flex; align-items:center; padding-left:10px; box-sizing:border-box; font-size:16px; color:#000; text-align:left; margin-top:-1px; line-height:1.2;">
+                        B. Uses CNNs/LSTMs for high-dimensional data.</div>
+                    <div
+                        style="width:330px; height:70px; border:1px solid #000; background:#fff; display:flex; align-items:center; padding-left:10px; box-sizing:border-box; font-size:16px; color:#000; text-align:left; margin-top:-1px; line-height:1.2;">
+                        C. Finds hidden structures in unlabeled data.</div>
+                    <div
+                        style="width:330px; height:70px; border:1px solid #000; background:#fff; display:flex; align-items:center; padding-left:10px; box-sizing:border-box; font-size:16px; color:#000; text-align:left; margin-top:-1px; line-height:1.2;">
+                        D. Maps input to output via labeled examples.</div>
+                </div>
+            </div>
+        </div>
         <button onclick="undoLastMove()" style="margin-top: 5px;">Undo Last Match</button>
     </section>
 
@@ -510,7 +534,7 @@
 
     <script>
         // ================================================================
-        // INK BOTTLE TRANSITION   3-step flow
+        // INK BOTTLE TRANSITION   3-step flow (From Code 1 - Correct Transition)
         // ================================================================
 
         const video = document.getElementById('character-video');
@@ -524,7 +548,8 @@
 
         let isDead = false;
         let animFrameId = null;
-        let frameCount = 0;
+        // RENAMED from frameCount to videoFrameCount to avoid conflict with p5.js global frameCount
+        let videoFrameCount = 0;
         const RENDER_SCALE = 0.5;
 
         // --- Chroma Key ---
@@ -559,8 +584,8 @@
         // --- Render loop ---
         function renderFrame() {
             if (video.paused || video.ended) return;
-            frameCount++;
-            if (frameCount % 2 !== 0) {
+            videoFrameCount++;
+            if (videoFrameCount % 2 !== 0) {
                 animFrameId = requestAnimationFrame(renderFrame);
                 return;
             }
@@ -695,7 +720,7 @@
         });
 
         // ================================================================
-        // MATCH THE FOLLOWING (p5.js game   unchanged)
+        // MATCH THE FOLLOWING (p5.js game - From Code 2 - Correct Game)
         // ================================================================
 
         const leftData = [
@@ -727,31 +752,70 @@
         const rightW = 330;
 
         function setup() {
+            // FIX: Ensure canvas text looks sharp like CSS text on high-res screens
+            pixelDensity(window.devicePixelRatio);
+
+            // FIX: Do NOT clear the innerHTML here. This prevents the "white flash/blink".
+            // The placeholder stays until we are ready to show the canvas.
+
             const cnv = createCanvas(800, 350);
+            cnv.id('match-game-canvas');
             cnv.parent('sketch-holder');
+
+            // FIX: Instead of display:none, use visibility:hidden + absolute positioning
+            // This ensures p5.js can correctly calculate mouse coords/events on the element
+            // even while it's "hidden". display:none often breaks mouseX/mouseY.
+            cnv.style('visibility', 'hidden');
+            cnv.style('position', 'absolute');
+            cnv.style('top', '0');
+            // We set pointer-events to none initially just to be safe, but turn them back on in draw()
+            cnv.style('pointer-events', 'none');
+
+            // Set text settings to match CSS
             textFont('Times New Roman');
+            textLeading(20); // Approximation for line-height 1.2
+
             leftData.forEach((d, i) => {
                 leftCells.push(new TableCell(leftX, tableTop + i * cellHeight, leftW, cellHeight, d.text, d.id));
             });
             rightData.forEach((d, i) => {
                 rightCells.push(new TableCell(rightX, tableTop + i * cellHeight, rightW, cellHeight, d.text, d.id));
             });
-            // Reveal match section now that p5 canvas is ready
-            document.getElementById('match-section').style.opacity = '1';
         }
 
         function draw() {
+            // FIX: Swap Visibility logic
+            // On the second frame (once p5 has fully set up), show the canvas and hide placeholder
+            // Using p5's native frameCount variable here (distinct from videoFrameCount)
+            if (frameCount === 2) {
+                const placeholder = document.getElementById('p5-placeholder');
+                if (placeholder) placeholder.style.display = 'none';
+
+                // Show the canvas
+                const c = document.getElementById('match-game-canvas');
+                if (c) {
+                    c.style.visibility = 'visible';
+                    c.style.position = 'static'; // restore to flow
+                    c.style.pointerEvents = 'auto'; // re-enable clicks
+                }
+            }
+
             background(255);
             textAlign(CENTER, CENTER);
+
+            // Header
             fill(235); stroke(0); strokeWeight(1);
             rect(leftX, tableTop - 30, leftW, 30);
             rect(rightX, tableTop - 30, rightW, 30);
+
             fill(0); noStroke(); textStyle(BOLD); textSize(20);
             text("Term", leftX + leftW / 2, tableTop - 15);
             text("Definition", rightX + rightW / 2, tableTop - 15);
+
             textStyle(NORMAL);
             leftCells.forEach(c => c.show());
             rightCells.forEach(c => c.show());
+
             if (selectedLeft && !selectedRight) {
                 stroke(0); strokeWeight(1);
                 line(selectedLeft.x + selectedLeft.w, selectedLeft.y + selectedLeft.h / 2, mouseX, mouseY);
@@ -829,6 +893,7 @@
                 else fill(255);
                 rect(this.x, this.y, this.w, this.h);
                 noStroke(); fill(0); textSize(16); textAlign(LEFT, CENTER);
+                // Adjusted padding to match CSS "padding-left: 10px"
                 text(this.text, this.x + 10, this.y, this.w - 20, this.h);
             }
             contains(px, py) {
@@ -854,7 +919,6 @@
         }
     </script>
 
-    <!-- Lenis smooth scroll init -->
     <script>
         const lenis = new Lenis({
             lerp: 0.045,        // Lower = more inertia/momentum ("scroll lil more")
