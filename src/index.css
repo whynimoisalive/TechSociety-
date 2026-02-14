@@ -1,0 +1,199 @@
+/* Tailwind v4 uses @import instead of @tailwind directives */
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;500;600;700;800;900&family=Inter:wght@300;400;500;600&family=Pixelify+Sans:wght@400;500;600;700&display=swap');
+
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+
+/* Handwritten Fonts */
+
+@font-face {
+  font-family: 'Palisade';
+  src: url('/fonts/Palisade.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'StampatelloFaceto';
+  src: url('/fonts/StampatelloFaceto.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Retro Button Styles */
+.join-btn {
+  font-family: "Pixelify Sans", system-ui;
+  font-weight: 400;
+  font-style: normal;
+  background-color: #d9d8de;
+  color: #2f2e2a;
+  /* $brown */
+  text-decoration: none;
+  border: 2px solid #2f2e2a;
+  /* $brown */
+  padding: 8px 20px;
+  box-shadow: 4px 4px #2f2e2a;
+  /* $brown */
+  transition: transform 100ms ease-in, box-shadow 100ms ease-in, outline-offset 100ms ease-in;
+  display: inline-block;
+  text-transform: uppercase;
+  font-size: 1rem;
+  /* maintaining readability */
+}
+
+.join-btn:hover {
+  cursor: pointer;
+}
+
+.join-btn:focus-visible {
+  outline-offset: 12px;
+  outline: 2px dotted #2f2e2a;
+}
+
+.join-btn:active {
+  box-shadow: 2px 2px #2f2e2a;
+  transform: scale(0.99);
+}
+
+/* Theme customization for Tailwind v4 */
+@theme {
+  /* Colors */
+  --color-ink-blue: #1E3A8A;
+  --color-ink-blue-light: #2563EB;
+  --color-blueprint-ink: #1E3A8A;
+  --color-blueprint-bg: #d9d8dd;
+
+  /* Fonts */
+  --font-serif-display: 'Bodoni Moda', serif;
+  --font-sans: 'Inter', sans-serif;
+  --font-serif: 'Bodoni Moda', serif;
+}
+
+:root {
+  --ink-blue: #1E3A8A;
+  --ink-blue-light: #2563EB;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  color: var(--ink-blue);
+  overflow-x: hidden;
+  background-color: #d9d8dd;
+  margin: 0;
+  padding: 0;
+}
+
+/* The specific editorial font for headings */
+.font-serif-display {
+  font-family: 'Bodoni Moda', serif;
+}
+
+/* Ticker Animation - Fixed at bottom */
+.ticker-wrap {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  background-color: #d9d8dd;
+  border-top: 1px solid var(--ink-blue);
+  white-space: nowrap;
+  z-index: 100;
+  padding: 20px 0;
+}
+
+.ticker {
+  display: inline-block;
+  animation: marquee 30s linear infinite;
+}
+
+.ticker-item {
+  display: inline-block;
+  padding: 0 2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-blue);
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Custom selection color */
+::selection {
+  background: var(--ink-blue);
+  color: white;
+}
+
+/* Fade in animation */
+.fade-in-up {
+  animation: fadeInUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.delay-100 {
+  animation-delay: 0.1s;
+}
+
+.delay-200 {
+  animation-delay: 0.2s;
+}
+
+.delay-300 {
+  animation-delay: 0.3s;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Nav Link Hover Effect */
+.nav-link {
+  position: relative;
+  color: #000000;
+  text-decoration: none;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 1px;
+  bottom: -2px;
+  left: 0;
+  background-color: #000000;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+@keyframes wobble-float {
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-20px) rotate(1.5deg);
+  }
+}

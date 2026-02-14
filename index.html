@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Tech Society IITM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            text-align: center;
+            background-color: #fff;
+            color: #000;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Times New Roman', serif;
+            color: #000;
+        }
+
+        /* Centering the canvas */
+        #sketch-holder {
+            display: flex;
+            justify-content: center;
+            margin: 20px auto 5px auto;
+        }
+
+        canvas.p5-canvas {
+            border: none;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Standard plain button styling */
+        button {
+            font-family: 'Times New Roman', serif;
+            background: #efefef;
+            color: #000;
+            border: 1px solid #767676;
+            padding: 4px 10px;
+            margin: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:active {
+            background: #dcdcdc;
+            border-style: inset;
+        }
+
+        /* Form inputs */
+        input,
+        select,
+        textarea {
+            font-family: 'Times New Roman', serif;
+            border: 1px solid #767676;
+            padding: 4px;
+        }
+
+        /* === I LIKE CSS BUTTON   top right === */
+        #css-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 50;
+        }
+
+        /* === REACT IFRAME === */
+        #react-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0;
+        }
+
+        #react-container.visible {
+            z-index: 200;
+            opacity: 1;
+        }
+
+        #react-app-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* === INK ANIMATION OVERLAY === */
+        #ink-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 150;
+            display: none;
+            /* hidden until button click */
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            flex-direction: column;
+        }
+
+        #ink-overlay.active {
+            display: flex;
+            pointer-events: auto;
+        }
+
+        #character-video {
+            display: none;
+        }
+
+        #character-container {
+            position: relative;
+            cursor: pointer;
+            width: 180px;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        #character-canvas {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        #dead-face-canvas {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #ink-overlay svg {
+            position: absolute;
+        }
+
+        #ink-sauce {
+            transform: scale(0.5);
+            z-index: -1;
+            margin-top: -600px;
+            transform: translateX(-30px);
+            opacity: 0;
+        }
+
+        #ink-transition {
+            transform: scale(1);
+            position: absolute;
+            top: -3050px;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        /* Clearing wave   flipped version of ink-transition */
+        #ink-clear {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 300;
+            pointer-events: none;
+            background: #3845a8;
+            display: none;
+            overflow: visible;
+        }
+
+        #ink-clear svg {
+            position: absolute;
+            bottom: calc(100% - 2px);
+            left: 0;
+            width: 100%;
+            height: auto;
+            display: block;
+            transform: scaleY(-1);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- React App (hidden behind) -->
+    <div id="react-container">
+        <iframe id="react-app-frame" src="/app.html"></iframe>
+    </div>
+
+    <!-- ===================== INK ANIMATION OVERLAY ===================== -->
+    <div id="ink-overlay">
+
+        <!-- Hidden video source (green screen) -->
+        <video id="character-video" muted playsinline loop>
+            <source src="/Video Project 4.mp4" type="video/mp4">
+        </video>
+
+        <!-- Main character display -->
+        <div id="character-container">
+            <canvas id="character-canvas"></canvas>
+            <canvas id="dead-face-canvas"></canvas>
+        </div>
+
+
+
+        <!-- Ink sauce splash SVG -->
+        <svg version="1.1" id="ink-sauce" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+            x="0px" y="0px" width="514.312px" height="1089.044px" viewBox="0 0 514.312 1089.044"
+            enable-background="new 0 0 514.312 1089.044" xml:space="preserve">
+            <g>
+                <g>
+                    <path fill="#414eb6" d="M314.361,1029.953c0,0-21.16-20.473,9.992-162.625c11.344-51.77,29.003-56.623,36.889-109.186
+                    c22.438-149.551-53.896-126.318-38.976-173.014c12.489-39.085,52.381-79.808,56.806-112.166c6.314-46.18-44.031-38.696-42.758-69
+                    c7.241-11.735,14.78-24.606,21.838-39.365c27.9-58.325,43.537-120.083,12.321-108.98c-16.658,5.924-45.288-26.572-49.167-47.293
+                    c3.278-14.375,6.416-30.689,8.152-48.476c5.741-58.776-9.945-142.267-39.706-132.676c-7.99,2.575-35.426,0.805-46.262-7.992
+                    c-53.891-43.744-95.427-13.484-35.483,99.194c59.944,112.674,54.06,129.763,39.754,263.545
+                    c-14.301,133.778-63.284,107.942-9.393,179.242c53.891,71.303-11.065,127.563,37.299,213.256
+                    c48.365,85.695-17.083,131.9,10.805,193.717C314.361,1029.953,305.189,1073.136,314.361,1029.953z" />
+                    <g>
+                        <path fill="#414eb6" d="M324.341,1045.136c49.015-73.346-23.268-119.604-28.313-136.199c-5.818-19.129-0.4-40.49-1.35-59.896
+                        c-1.638-33.553,5.813-67.877,6.226-100.906c0.227-18.078-5.6-34.609-12.527-51.074c-7.26-17.27-11.765-32.57-16.826-50.551
+                        c-6.334-22.494-15.91-34.771-10.255-59.352c8.074-35.094,16.312-67.809-0.959-101.185c-7.715-14.914-18.054-26.305-26.303-40.405
+                        c-10.946-18.7-11.09-41.372-14.035-62.339c-2.391-16.997-4.49-32.604-11.965-48.004
+                        c-9.875-20.352-88.893-199.153-191.787-175.711c-37.432,8.527-1.143,79.015,18.677,104.47
+                        c36.018,46.254,104.878,61.392,134.375,112.473c11.159,19.318,27.455,64.068,0.178,74.181c-8.456,3.133-13.413,1.213-20.135,9.81
+                        c-5.506,7.046-8.227,17.068-9.52,25.54c-3.053,19.972,4.834,34.839,14.625,52.353c16.253,29.059,38.561,54.4,54.878,83.764
+                        c14.748,26.535,34.481,49.969,43.781,79.373c6.813,21.545,8.045,43.201,8.721,65.541c0.551,18.26-2.635,36.504-1.618,54.213
+                        c0.339,5.924,5,15.727-2.05,18.611c-4.355,1.779-10.092-5.537-12.523-8.545c-18.265-22.633-5.343-103.59-47.554-101.166
+                        c-22.63,1.299-32.251,22.689-32.319,43.77c-0.137,46.961,20.393,88.35,51.698,121.426
+                        c43.066,45.514,71.438,104.439,74.276,167.301c0.389,8.541-2.645,18.301,0.726,26.418c2.167-0.568,4.255-1.951,6.167-3.75
+                        C302.058,1073.406,317.66,1055.134,324.341,1045.136z" />
+                    </g>
+                    <path fill="#414eb6" d="M275.422,404.68c-10.062-148.862,21.914-196.404-49.754-285.91
+                    c-71.666-89.504-132.013-55.555-89.415,27.051c42.599,82.608,73.814,92.172,88.566,141.356
+                    c14.753,49.184-12.694,8.435,11.964,79.82C261.442,438.381,284.506,539.082,275.422,404.68z" />
+                </g>
+                <g>
+                    <path fill="#2a3580" d="M394.102,987.031c71.177-34.783,149.757-140.578,109.063-166.637
+                    C451.677,787.423,429.176,910.46,394.102,987.031z" />
+                    <path fill="#414eb6" d="M328.46,1003.029c37.946-36.352,64.676-101.086,28.507-109.889
+                    C320.795,884.341,334.276,955.875,328.46,1003.029z" />
+                    <path fill="#2a3580" d="M289.67,1088.625c-4.009-27.021-1.639-47.303-30.28-100.516c-28.645-53.209-37.435-74.957-43.628-67.6
+                    c-6.195,7.359-1.81,19.961,18.802,45.398c20.613,25.436,36.477,47.512,41.222,68.957c-2.77-9.434-13.408-5.809-12.51,2.299
+                    C265.073,1053.359,289.67,1088.625,289.67,1088.625z" />
+                    <path fill="#2a3580" d="M302.904,1055.128c11.457-25.176,18.58-37.58,15.193-63.125c12.19-27.85-3.091-49.176-10.111-48.457
+                    c-7.023,0.723,4.362-51.113-6.84-84.422c-9.284-27.604-32.579-35.713-29.419,3.197c3.16,38.916,17.158,81.207,21.236,102.807
+                    c4.079,21.605-14.828-22.338-23.059-18.027C261.669,951.412,305.017,1000.33,302.904,1055.128z" />
+                    <path fill="#5b68c9" d="M314.057,220.402c-13.657-32.435,4.354,107.999-2.268,144.445c-6.623,36.449,6.408-11.57,20.848-51.342
+                    C347.078,273.73,329.454,256.951,314.057,220.402z" />
+                    <path fill="#5b68c9" d="M234.976,522.704c-5.283-32.224-27.021-59.971-33.228-33.518c-16.025,68.331,36.633,99.53,50.172,112.145
+                    c38.905,36.242,59.722,111.512,57.21,159.859C337.541,641.008,244.432,580.359,234.976,522.704z" />
+                    <path fill="#2a3580" d="M216.358,685.068c-6.938-31.189-34.958-104.701-69.346-105.665
+                    C90.137,577.814,223.679,717.982,216.358,685.068z" />
+                    <path fill="#5b68c9" d="M282.463,579.843c-32.016-56.91-27.916-144.146-4.398-142.523c23.521,1.622,34.268,44.449,12.819,87.839
+                    C279.992,542.16,299.927,578.74,282.463,579.843z" />
+                    <path fill="#414eb6"
+                        d="M341.653,1055.505c0,0,68.397-16.951,67.049-37.719C407.35,997.017,389.488,1022.435,341.653,1055.505z" />
+                    <path fill="#5b68c9"
+                        d="M229.821,897.957c0,0-38.185-27.121-47.231-67.889C173.541,789.3,192.182,845.501,229.821,897.957z" />
+                    <path fill="#414eb6" d="M382.805,721.468c-3.168-33.957,6.82-45.385-6.035-85.735c-14.027-44.033,6.883-55.114,15.524-31.343
+                    C403.342,634.799,402.875,657.643,382.805,721.468z" />
+                    <path fill="#414eb6" d="M359.414,385.206c0,0,22.113-32.249,28.379-46.752c6.267-14.506,23.959-8.316,18.625,13.202
+                    C401.083,373.172,370.246,383.419,359.414,385.206z" />
+                    <path fill="#2a3580" d="M104.869,401.165c12.528,37.194,19.488,35.218,18.278,43.97c-3.648,26.373-66.484-6.942-78.637-53.93
+                    C32.354,344.215,87.107,348.44,104.869,401.165z" />
+                </g>
+            </g>
+        </svg>
+
+        <!-- Ink transition SVG (fills screen) -->
+        <svg version="1.1" id="ink-transition" xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="1920px" height="3000px"
+            viewBox="0 0 1920 3000" enable-background="new 0 0 1920 3000" xml:space="preserve">
+            <g>
+                <defs>
+                    <rect id="SVGID_1_" y="2710.882" width="1920" height="668.244" />
+                </defs>
+                <clipPath id="SVGID_2_">
+                    <use xlink:href="#SVGID_1_" overflow="visible" />
+                </clipPath>
+                <path clip-path="url(#SVGID_2_)" fill="#343fa0" d="M1937.556,2701.909c-17.075-26.01-40.905-50.952-69.831-74.316
+                c-103.425-83.59-268.081-144.867-453.144-178.365c-105.019-19.006-220.231-31.406-331.606-36.725
+                c-167.085-7.978-338.001-5.487-500.592,16.512c-172.375,23.322-339.834,67.907-463.911,132.021
+                c-34.713,17.939-65.662,37.43-91.563,58.729c-64.733,53.239-108.154,114.115-100.716,176.96
+                c2.549,21.525,46.608,60.653,93.744,37.477c19.999-9.83,52.608-51.112,90.753-42.115c17.997,4.246,12.22,31.136,25.725,39.098
+                c22.999,13.553,54.644,3.32,79.763-4.158c-9.525,33.166-4.958,65.285,15.396,97.384c15.389,24.276,56.586,80.791,126.985,72.963
+                c71.376-7.933,100.683-71.239,120.788-99.466c9.17-12.854,19.914-45.9,55.045-38.086c35.223,7.837,45.73,44.835,56.347,60.406
+                c12.869,18.858,28.231,45.081,64.717,55.661c39.441,11.438,83.049-6.233,98.896-24.345c24.672-28.181,16.626-54.252,77.881-71.86
+                c129.46-37.222,117.089,75.415,224.423,65.349c75.844-7.111,98.706-75.016,182.338-71.859c55.8,2.102,71.318,39.908,99.174,58.126
+                c36.726,24.019,74.845,44.273,140.426,32.014c55.431-10.364,65.488-38.853,74.663-64.352c9.019-25.053,29.812-59.186,72.975-75.232
+                c36.493-13.569,86.081-4.038,108.237,16.086c28.425,25.819,29.294,57.664,74.456,79.507c50.206,24.277,107.15,5.697,132.413-19.328
+                c36.024-35.697,31.031-100.803,22.218-139.344C1958.969,2740.628,1950.081,2720.983,1937.556,2701.909z" />
+                <path clip-path="url(#SVGID_2_)" fill="#5b68c9" d="M1722.725,2546.708c-244.787-123.524-617.412-192.628-949.392-164.446
+                c-281.397,23.89-580.301,100.012-731.872,237.994c-37.438,34.083-85.05,96.511-74.508,137.17
+                c12.099,46.722,75.902-3.55,117.722-4.103c57.841-0.76,70.031,109.774,138.569,34.455c-3,3.29,20.092,42.477,21.953,51.132
+                c3.061,14.188,5.204,28.548,11.786,42.431c17.306,36.565,69.952,60.646,125.469,25.518c20.47-12.949,37.47-24.51,47.09-40.818
+                c11.286-19.106,8.571-47.131,47.98-56.974c121.969-30.448,114.679,135.201,226.105,88.421
+                c58.412-24.523,141.695-73.191,223.779-51.841c42.2,10.974,60.594,37.845,102.244,48.501
+                c86.986,22.245,121.78-47.814,201.043-46.952c48.332,0.526,85.307,24.431,114.157,42.8c80.075,50.988,153.111,3.485,179.505-41.286
+                c21.014-35.648,99.238-71.037,170.676-62.5c94.824,11.331,59.431,81.433,137.551,97.274
+                c128.124,25.983,105.843-121.054,90.898-155.597C1891.544,2654.063,1818.175,2594.874,1722.725,2546.708z M1206.55,2622.789
+                c-108.075,32.085-142.368,13.782-243.156,8.322c-151.937-8.229-450.092,131.517-475.934,33.266
+                c-43.314-164.651,324.944-222.632,558.428-195.198c106.862,12.554,232.112,35.16,313.256,76.693
+                C1490.838,2613.278,1343.881,2582.016,1206.55,2622.789z" />
+                <linearGradient id="SVGID_3_" gradientUnits="userSpaceOnUse" x1="1701.54" y1="2942.4229" x2="1680.0337"
+                    y2="2326.5635">
+                    <stop offset="0.4485" style="stop-color:#5b68c9" />
+                    <stop offset="0.8364" style="stop-color:#2a3580" />
+                </linearGradient>
+                <path opacity="0.45" clip-path="url(#SVGID_2_)" fill="url(#SVGID_3_)" d="M1718.4,2544.313c5.737,0.416,11.213,1.284,16.162,2.576
+                c-3.994-2.23-8.038-4.432-12.112-6.618c-27.25,0.304-54.506,0.562-81.764,0.722
+                C1666.662,2541.604,1692.625,2542.449,1718.4,2544.313z" />
+                <path clip-path="url(#SVGID_2_)" fill="#3845a8" d="M1868.338,2653.514c-17.106-17.003-32.713-33.835-53.456-49.72
+                c-20.638-15.805-43.469-30.741-68.026-44.851c1.62,2.301,2.551,4.862,2.551,7.72c0,8.941-12.056,19.328-29.344,20.949
+                c-39.994,3.752-77.494-0.414-117.238-2.845c-1.98-0.121-3.962-0.225-5.942-0.346c-6.389-0.131-12.782-0.266-19.169-0.417
+                c-49.313-1.166-98.606-2.209-147.944-3.08c2.088,3.094,4.007,6.181,5.725,9.247c16.757,29.843,18.45,74.892-5.474,104.034
+                c-20.576,25.06-118.607-61.533-158.12-44.209c-31.35,13.75-72.031-23.33-106.868-17.307
+                c-125.007,21.616-114.688,0.35-245.161-17.144c-93.459-12.53-216.176,49.488-292.06,15.564
+                c-71.974-32.175-118.842-54.433-135.602-73.013c-21.716-0.952-43.428-1.938-65.131-2.998
+                c-96.436-4.707-192.724-10.188-288.975-15.864c-11.166,6.528-21.812,13.179-31.694,19.942
+                c-33.006,22.591-58.428,44.56-100.708,61.547c-40.766,16.381-57.953,38.854-55.291,66.033c1.43,14.601,17.015,45.199,34.986,56.763
+                c31.634,20.354,76.487-5.577,103.987-15.457c64.125-23.031,44.494,24.065,64.23,42.989c21.3,20.427,50.229-0.316,78.862,12.27
+                c28.15,12.371,24.372,37.178,33.749,54.315c9.645,17.624,40.181,46.896,81.125,37.146c27.013-6.435,45.513-39.676,61.072-53.015
+                c11.247-9.641,25.029-19.23,45.523-23.367c56.558-11.418,97.561,6.468,130.311,29.979c26.686,19.155,62.119,63.575,114.78,40.163
+                c45.411-20.184,104.564-34.651,163.021-37.91c64.887-3.615,109.8,26.032,167.787,38.034c49.481,10.243,94.756-8.464,135.969-20.848
+                c41.681-12.526,87.55-14.497,130.3-2.449c37.207,10.483,69.825,41.853,114.432,41.226c40.938-0.57,60.944-27.861,73.687-45.152
+                c19.832-26.918,56.338-52.33,101.758-67.73c57.087-19.358,111.986-3.352,168.774,6.558c44.225,7.716,102.425,33.392,143.387,8.844
+                c1.988-1.19,3.901-2.404,5.726-3.645c37.994-25.706,42.27-61.294,16.731-91.022
+                C1907.206,2678.854,1882.906,2667.991,1868.338,2653.514z" />
+            </g>
+            <rect fill="#3845a8" width="1920" height="2710.882" />
+        </svg>
+    </div>
+    <!-- ===================== END INK OVERLAY ===================== -->
+
+    <!-- ===================== INK CLEAR OVERLAY (flipped wipe) ===================== -->
+    <div id="ink-clear">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="0 2600 1920 400" xml:space="preserve">
+            <g>
+                <defs>
+                    <rect id="CLR_1" y="2710.882" width="1920" height="668.244" />
+                </defs>
+                <clipPath id="CLR_2">
+                    <use xlink:href="#CLR_1" overflow="visible" />
+                </clipPath>
+                <path clip-path="url(#CLR_2)" fill="#343fa0" d="M1937.556,2701.909c-17.075-26.01-40.905-50.952-69.831-74.316
+                c-103.425-83.59-268.081-144.867-453.144-178.365c-105.019-19.006-220.231-31.406-331.606-36.725
+                c-167.085-7.978-338.001-5.487-500.592,16.512c-172.375,23.322-339.834,67.907-463.911,132.021
+                c-34.713,17.939-65.662,37.43-91.563,58.729c-64.733,53.239-108.154,114.115-100.716,176.96
+                c2.549,21.525,46.608,60.653,93.744,37.477c19.999-9.83,52.608-51.112,90.753-42.115c17.997,4.246,12.22,31.136,25.725,39.098
+                c22.999,13.553,54.644,3.32,79.763-4.158c-9.525,33.166-4.958,65.285,15.396,97.384c15.389,24.276,56.586,80.791,126.985,72.963
+                c71.376-7.933,100.683-71.239,120.788-99.466c9.17-12.854,19.914-45.9,55.045-38.086c35.223,7.837,45.73,44.835,56.347,60.406
+                c12.869,18.858,28.231,45.081,64.717,55.661c39.441,11.438,83.049-6.233,98.896-24.345c24.672-28.181,16.626-54.252,77.881-71.86
+                c129.46-37.222,117.089,75.415,224.423,65.349c75.844-7.111,98.706-75.016,182.338-71.859c55.8,2.102,71.318,39.908,99.174,58.126
+                c36.726,24.019,74.845,44.273,140.426,32.014c55.431-10.364,65.488-38.853,74.663-64.352c9.019-25.053,29.812-59.186,72.975-75.232
+                c36.493-13.569,86.081-4.038,108.237,16.086c28.425,25.819,29.294,57.664,74.456,79.507c50.206,24.277,107.15,5.697,132.413-19.328
+                c36.024-35.697,31.031-100.803,22.218-139.344C1958.969,2740.628,1950.081,2720.983,1937.556,2701.909z" />
+                <path clip-path="url(#CLR_2)" fill="#5b68c9" d="M1722.725,2546.708c-244.787-123.524-617.412-192.628-949.392-164.446
+                c-281.397,23.89-580.301,100.012-731.872,237.994c-37.438,34.083-85.05,96.511-74.508,137.17
+                c12.099,46.722,75.902-3.55,117.722-4.103c57.841-0.76,70.031,109.774,138.569,34.455c-3,3.29,20.092,42.477,21.953,51.132
+                c3.061,14.188,5.204,28.548,11.786,42.431c17.306,36.565,69.952,60.646,125.469,25.518c20.47-12.949,37.47-24.51,47.09-40.818
+                c11.286-19.106,8.571-47.131,47.98-56.974c121.969-30.448,114.679,135.201,226.105,88.421
+                c58.412-24.523,141.695-73.191,223.779-51.841c42.2,10.974,60.594,37.845,102.244,48.501
+                c86.986,22.245,121.78-47.814,201.043-46.952c48.332,0.526,85.307,24.431,114.157,42.8c80.075,50.988,153.111,3.485,179.505-41.286
+                c21.014-35.648,99.238-71.037,170.676-62.5c94.824,11.331,59.431,81.433,137.551,97.274
+                c128.124,25.983,105.843-121.054,90.898-155.597C1891.544,2654.063,1818.175,2594.874,1722.725,2546.708z M1206.55,2622.789
+                c-108.075,32.085-142.368,13.782-243.156,8.322c-151.937-8.229-450.092,131.517-475.934,33.266
+                c-43.314-164.651,324.944-222.632,558.428-195.198c106.862,12.554,232.112,35.16,313.256,76.693
+                C1490.838,2613.278,1343.881,2582.016,1206.55,2622.789z" />
+                <path clip-path="url(#CLR_2)" fill="#3845a8" d="M1868.338,2653.514c-17.106-17.003-32.713-33.835-53.456-49.72
+                c-20.638-15.805-43.469-30.741-68.026-44.851c1.62,2.301,2.551,4.862,2.551,7.72c0,8.941-12.056,19.328-29.344,20.949
+                c-39.994,3.752-77.494-0.414-117.238-2.845c-1.98-0.121-3.962-0.225-5.942-0.346c-6.389-0.131-12.782-0.266-19.169-0.417
+                c-49.313-1.166-98.606-2.209-147.944-3.08c2.088,3.094,4.007,6.181,5.725,9.247c16.757,29.843,18.45,74.892-5.474,104.034
+                c-20.576,25.06-118.607-61.533-158.12-44.209c-31.35,13.75-72.031-23.33-106.868-17.307
+                c-125.007,21.616-114.688,0.35-245.161-17.144c-93.459-12.53-216.176,49.488-292.06,15.564
+                c-71.974-32.175-118.842-54.433-135.602-73.013c-21.716-0.952-43.428-1.938-65.131-2.998
+                c-96.436-4.707-192.724-10.188-288.975-15.864c-11.166,6.528-21.812,13.179-31.694,19.942
+                c-33.006,22.591-58.428,44.56-100.708,61.547c-40.766,16.381-57.953,38.854-55.291,66.033c1.43,14.601,17.015,45.199,34.986,56.763
+                c31.634,20.354,76.487-5.577,103.987-15.457c64.125-23.031,44.494,24.065,64.23,42.989c21.3,20.427,50.229-0.316,78.862,12.27
+                c28.15,12.371,24.372,37.178,33.749,54.315c9.645,17.624,40.181,46.896,81.125,37.146c27.013-6.435,45.513-39.676,61.072-53.015
+                c11.247-9.641,25.029-19.23,45.523-23.367c56.558-11.418,97.561,6.468,130.311,29.979c26.686,19.155,62.119,63.575,114.78,40.163
+                c45.411-20.184,104.564-34.651,163.021-37.91c64.887-3.615,109.8,26.032,167.787,38.034c49.481,10.243,94.756-8.464,135.969-20.848
+                c41.681-12.526,87.55-14.497,130.3-2.449c37.207,10.483,69.825,41.853,114.432,41.226c40.938-0.57,60.944-27.861,73.687-45.152
+                c19.832-26.918,56.338-52.33,101.758-67.73c57.087-19.358,111.986-3.352,168.774,6.558c44.225,7.716,102.425,33.392,143.387,8.844
+                c1.988-1.19,3.901-2.404,5.726-3.645c37.994-25.706,42.27-61.294,16.731-91.022
+                C1907.206,2678.854,1882.906,2667.991,1868.338,2653.514z" />
+                <rect fill="#3845a8" width="1920" height="2710.882" />
+            </g>
+        </svg>
+    </div>
+
+    <!-- I Like CSS Button (now in normal flow above the header) -->
+    <button id="css-btn">I like CSS</button>
+
+    <header>
+        <h1>Tech Society IITM</h1>
+        <p>We build, create, and launch technology for the IIT Madras community.</p>
+        <p>Workshops · Live sessions · Hackathons · Official IITM web experiences</p>
+        <hr>
+    </header>
+
+    <section>
+        <h2>Our Mission</h2>
+        <p style="max-width: 800px; margin: 0 auto; text-align: justify;">
+            Tech Society IITM brings curious minds together to explore, prototype, and ship practical technology. We
+            support campus teams, guide budding developers, and keep IITM's digital presence reliable and accessible. We
+            believe learning should move beyond theory into real execution. Our goal is to create an environment where
+            students build systems that people actually use. From beginners writing their first programs to experienced
+            members deploying full-scale applications, we create a clear path for growth.<br><br>
+            The society bridges curiosity and capability through structured learning, hands-on build sessions, and
+            real-world projects. Members learn how to plan, collaborate, debug, and deliver reliable solutions.
+            We focus on impact by building tools that solve real IITM needs, improve student services, and strengthen
+            campus operations. Reliability, performance, and usability are treated as essential engineering
+            standards.<br><br>
+            Through mentorship, peer learning, hackathons, and technical sessions, we prepare students to think and work
+            like real developers. Learn fast. Build often. Ship what matters.
+        </p>
+    </section>
+
+    <br>
+
+    <section id="match-section" style="opacity: 0; transition: opacity 0.3s ease;">
+        <h2>Match the Following</h2>
+        <p>Click a row in the left table, then click the matching row in the right table.</p>
+        <div id="sketch-holder" style="min-height: 350px;"></div>
+        <button onclick="undoLastMove()" style="margin-top: 5px;">Undo Last Match</button>
+    </section>
+
+    <hr>
+
+    <section>
+        <h2>What We Create</h2>
+        <div style="display:inline-block; text-align:left; border: 1px solid #000; padding: 10px;">
+            <ul>
+                <li>Hands-on workshops that turn ideas into working demos.</li>
+                <li>Live sessions with alumni and researchers.</li>
+                <li>Hackathons solving real campus needs.</li>
+                <li>Official IITM websites used daily.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section>
+        <p>Pick a button to see details:</p>
+        <button onclick="reveal('workshop')">Workshop Warp</button>
+        <button onclick="reveal('hackathon')">Hackathon Portal</button>
+        <button onclick="reveal('build')">Builder Beacon</button>
+        <button onclick="reveal('secret')">Easter Egg?</button>
+        <p id="message" style="color:#000; font-style: italic;">Your adventure starts with a click.</p>
+    </section>
+
+    <section>
+        <h2>Join The Team</h2>
+        <form action="#" method="post">
+            <fieldset style="border:1px solid #000; padding:12px; display:inline-block; text-align:left;">
+                <legend>Contribution Form</legend>
+                <table>
+                    <tr>
+                        <td align="right"><label for="name">Name:</label></td>
+                        <td><input id="name" name="name" type="text" required></td>
+                    </tr>
+                    <tr>
+                        <td align="right"><label for="email">IITM Email:</label></td>
+                        <td><input id="email" name="email" type="email" required></td>
+                    </tr>
+                    <tr>
+                        <td align="right"><label for="interest">Interest Area:</label></td>
+                        <td>
+                            <select id="interest" name="interest">
+                                <option value="web">Campus Web Platforms</option>
+                                <option value="events">Workshops &amp; Live Sessions</option>
+                                <option value="hackathons">Hackathon Operations</option>
+                                <option value="research">Research Collaborations</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="right" valign="top"><label for="notes">Notes:</label></td>
+                        <td><textarea id="notes" name="notes" rows="4" cols="30"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" align="center" style="padding-top:10px;">
+                            <button type="submit">Send</button>
+                            <button type="reset">Clear</button>
+                        </td>
+                    </tr>
+                </table>
+            </fieldset>
+        </form>
+    </section>
+
+    <footer>
+        <hr>
+        <p>&copy; Tech Society IITM</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.9.4/lib/p5.min.js"></script>
+
+    <script>
+        // ================================================================
+        // INK BOTTLE TRANSITION   3-step flow
+        // ================================================================
+
+        const video = document.getElementById('character-video');
+        const charCanvas = document.getElementById('character-canvas');
+        const charCtx = charCanvas.getContext('2d', { willReadFrequently: true });
+        const deadCanvas = document.getElementById('dead-face-canvas');
+        const deadCtx = deadCanvas.getContext('2d', { willReadFrequently: true });
+        const charContainer = document.getElementById('character-container');
+        const inkOverlay = document.getElementById('ink-overlay');
+        const clickHint = document.getElementById('click-hint');
+
+        let isDead = false;
+        let animFrameId = null;
+        let frameCount = 0;
+        const RENDER_SCALE = 0.5;
+
+        // --- Chroma Key ---
+        const CHROMA_THRESHOLD = 80;
+        const CHROMA_RATIO = 1.2;
+
+        function isGreenScreen(r, g, b) {
+            if (g < CHROMA_THRESHOLD) return false;
+            const avg = (r + b) / 2;
+            if (avg === 0) return g > CHROMA_THRESHOLD;
+            return (g / avg) > CHROMA_RATIO && g > r && g > b;
+        }
+
+        function removeGreenScreen(sourceCtx, width, height) {
+            const imageData = sourceCtx.getImageData(0, 0, width, height);
+            const data = imageData.data;
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i], g = data[i + 1], b = data[i + 2];
+                if (isGreenScreen(r, g, b)) {
+                    data[i + 3] = 0;
+                } else {
+                    const greenness = g / ((r + b) / 2 + 1);
+                    if (greenness > 1.0 && g > 60) {
+                        data[i + 3] = Math.max(0, Math.min(255, 255 - (greenness - 1.0) * 200));
+                        data[i + 1] = Math.max(0, g - (g - (r + b) / 2) * 0.5);
+                    }
+                }
+            }
+            sourceCtx.putImageData(imageData, 0, 0);
+        }
+
+        // --- Render loop ---
+        function renderFrame() {
+            if (video.paused || video.ended) return;
+            frameCount++;
+            if (frameCount % 2 !== 0) {
+                animFrameId = requestAnimationFrame(renderFrame);
+                return;
+            }
+            const targetW = Math.floor(video.videoWidth * RENDER_SCALE);
+            const targetH = Math.floor(video.videoHeight * RENDER_SCALE);
+            if (charCanvas.width !== targetW || charCanvas.height !== targetH) {
+                charCanvas.width = targetW;
+                charCanvas.height = targetH;
+            }
+            charCtx.drawImage(video, 0, 0, charCanvas.width, charCanvas.height);
+            removeGreenScreen(charCtx, charCanvas.width, charCanvas.height);
+            animFrameId = requestAnimationFrame(renderFrame);
+        }
+
+        // --- Dead face ---
+        const deadFaceImg = new Image();
+        deadFaceImg.crossOrigin = 'anonymous';
+        deadFaceImg.src = '/deadface.png';
+        deadFaceImg.onload = function () {
+            deadCanvas.width = Math.floor(deadFaceImg.naturalWidth * RENDER_SCALE);
+            deadCanvas.height = Math.floor(deadFaceImg.naturalHeight * RENDER_SCALE);
+            deadCtx.drawImage(deadFaceImg, 0, 0, deadCanvas.width, deadCanvas.height);
+            removeGreenScreen(deadCtx, deadCanvas.width, deadCanvas.height);
+        };
+
+        // --- Video events ---
+        video.addEventListener('playing', function () { renderFrame(); });
+        video.addEventListener('canplay', function () {
+            // Don't auto-play   wait for button click
+        });
+
+        // --- Ink SVG initial state ---
+        gsap.set('#ink-sauce', { scale: 0, opacity: 0 });
+
+        // ======================
+        // STEP 1: "I like CSS" button click → show overlay + start video
+        // ======================
+        document.getElementById('css-btn').addEventListener('click', function () {
+            this.style.display = 'none';
+
+            // Show the ink overlay
+            inkOverlay.classList.add('active');
+
+            // Fade in the container
+            gsap.fromTo('#character-container', { opacity: 0, scale: 0.5 }, {
+                opacity: 1, scale: 1, duration: 0.6, ease: 'back.out(1.7)'
+            });
+            gsap.fromTo('#click-hint', { opacity: 0 }, { opacity: 1, duration: 0.5, delay: 0.8 });
+
+            // Disable scrolling on the landing page (Lenis + body)
+            lenis.stop();
+            document.body.style.overflow = 'hidden';
+
+            // Start the video
+            video.playbackRate = 1.2;
+            video.play().catch(function () {
+                // Autoplay blocked   video will start on next user interaction
+                document.addEventListener('click', function startPlay() {
+                    video.play();
+                    document.removeEventListener('click', startPlay);
+                }, { once: true });
+            });
+        });
+
+        // ======================
+        // STEP 3: Click character → ink splash → reveal React app
+        // ======================
+        charContainer.addEventListener('click', function () {
+            if (isDead) return;
+            isDead = true;
+
+            // Hide the hint
+            gsap.to('#click-hint', { opacity: 0, duration: 0.2 });
+
+            // 1. Pause video
+            video.pause();
+            cancelAnimationFrame(animFrameId);
+
+            // 2. Show dead face
+            gsap.to('#dead-face-canvas', { opacity: 1, duration: 0.15, ease: 'power3.in' });
+            gsap.to('#character-canvas', { opacity: 0, duration: 0.15, ease: 'power3.in' });
+
+            // 3. Squish / bounce
+            gsap.to('#character-container', { y: 20, duration: 0.25, ease: 'bounce.out' });
+
+            // 4. Ink sauce splash
+            gsap.to('#ink-sauce', { opacity: 1, scale: 1, y: 30, transformOrigin: 'bottom', duration: 0.3 });
+            gsap.to('#ink-sauce', { delay: 0.5, opacity: 0, transformOrigin: 'bottom', duration: 0.3 });
+
+            // 5. Ink transition   PAINT PHASE: ink cascades down covering screen
+            gsap.to('#ink-transition', { opacity: 1, y: 250, ease: 'elastic.out(1, 0.5)', duration: 1 });
+            gsap.to('#ink-transition', { delay: 1, y: 1500, ease: 'power3.inOut', duration: 1 });
+
+            charContainer.style.pointerEvents = 'none';
+
+            // 6. CLEAR PHASE: after screen is fully inked, wipe it away with wavy top edge
+            setTimeout(function () {
+                // Show React behind the ink
+                document.getElementById('react-container').classList.add('visible');
+
+                // Hide the paint overlay (it's behind ink-clear now)
+                inkOverlay.style.display = 'none';
+
+                // Show the clearing overlay (solid ink with flipped wavy SVG at top)
+                var inkClear = document.getElementById('ink-clear');
+                inkClear.style.display = 'block';
+
+                // Calculate distance: viewport height + the wavy SVG overhang
+                var svgEl = inkClear.querySelector('svg');
+                var svgHeight = svgEl ? svgEl.getBoundingClientRect().height : 200;
+                var totalSlide = window.innerHeight + svgHeight + 50;
+
+                // Slide the clearing overlay DOWN off-screen → wavy top edge wipes away
+                gsap.fromTo('#ink-clear',
+                    { y: 0 },
+                    {
+                        y: totalSlide, duration: 1.4, ease: 'power2.inOut', delay: 0.3,
+                        onComplete: function () {
+                            inkClear.style.display = 'none';
+                            gsap.set('#ink-clear', { y: 0 });
+                            // Focus the iframe so scroll events are captured immediately
+                            var frame = document.getElementById('react-app-frame');
+                            if (frame) {
+                                frame.focus();
+                                // Tell the React app to recalibrate its scroll
+                                frame.contentWindow.postMessage('lenis-resize', '*');
+                            }
+                        }
+                    }
+                );
+            }, 1800);
+        });
+
+        // ================================================================
+        // MATCH THE FOLLOWING (p5.js game   unchanged)
+        // ================================================================
+
+        const leftData = [
+            { id: 1, text: "Supervised Learning" },
+            { id: 2, text: "Unsupervised Learning" },
+            { id: 3, text: "Deep Learning" },
+            { id: 4, text: "Reinforcement Learning" }
+        ];
+
+        const rightData = [
+            { id: 4, text: "A. Maximizes reward signal through trial & error." },
+            { id: 3, text: "B. Uses CNNs/LSTMs for high-dimensional data." },
+            { id: 2, text: "C. Finds hidden structures in unlabeled data." },
+            { id: 1, text: "D. Maps input to output via labeled examples." }
+        ];
+
+        let leftCells = [];
+        let rightCells = [];
+        let connections = [];
+        let selectedLeft = null;
+        let selectedRight = null;
+        let all_correct_flag = false;
+
+        const cellHeight = 70;
+        const tableTop = 50;
+        const leftW = 240;
+        const leftX = 130;
+        const rightX = 430;
+        const rightW = 330;
+
+        function setup() {
+            const cnv = createCanvas(800, 350);
+            cnv.parent('sketch-holder');
+            textFont('Times New Roman');
+            leftData.forEach((d, i) => {
+                leftCells.push(new TableCell(leftX, tableTop + i * cellHeight, leftW, cellHeight, d.text, d.id));
+            });
+            rightData.forEach((d, i) => {
+                rightCells.push(new TableCell(rightX, tableTop + i * cellHeight, rightW, cellHeight, d.text, d.id));
+            });
+            // Reveal match section now that p5 canvas is ready
+            document.getElementById('match-section').style.opacity = '1';
+        }
+
+        function draw() {
+            background(255);
+            textAlign(CENTER, CENTER);
+            fill(235); stroke(0); strokeWeight(1);
+            rect(leftX, tableTop - 30, leftW, 30);
+            rect(rightX, tableTop - 30, rightW, 30);
+            fill(0); noStroke(); textStyle(BOLD); textSize(20);
+            text("Term", leftX + leftW / 2, tableTop - 15);
+            text("Definition", rightX + rightW / 2, tableTop - 15);
+            textStyle(NORMAL);
+            leftCells.forEach(c => c.show());
+            rightCells.forEach(c => c.show());
+            if (selectedLeft && !selectedRight) {
+                stroke(0); strokeWeight(1);
+                line(selectedLeft.x + selectedLeft.w, selectedLeft.y + selectedLeft.h / 2, mouseX, mouseY);
+            } else if (selectedRight && !selectedLeft) {
+                stroke(0); strokeWeight(1);
+                line(selectedRight.x, selectedRight.y + selectedRight.h / 2, mouseX, mouseY);
+            }
+            connections.forEach(conn => {
+                strokeWeight(1.5); stroke(0);
+                line(conn.left.x + conn.left.w, conn.left.y + conn.left.h / 2, conn.right.x, conn.right.y + conn.right.h / 2);
+            });
+        }
+
+        function mouseClicked() {
+            let clickedL = null;
+            leftCells.forEach(c => { if (c.contains(mouseX, mouseY) && !c.locked) clickedL = c; });
+            let clickedR = null;
+            rightCells.forEach(c => { if (c.contains(mouseX, mouseY) && !c.locked) clickedR = c; });
+            if (clickedL) {
+                if (selectedLeft) selectedLeft.selected = false;
+                selectedLeft = clickedL;
+                selectedLeft.selected = true;
+            }
+            if (clickedR) {
+                if (selectedRight) selectedRight.selected = false;
+                selectedRight = clickedR;
+                selectedRight.selected = true;
+            }
+            if (selectedLeft && selectedRight) {
+                selectedLeft.locked = true;
+                selectedRight.locked = true;
+                const isMatch = selectedLeft.id === selectedRight.id;
+                let status = isMatch ? 'correct' : 'wrong';
+                selectedLeft.status = status;
+                selectedRight.status = status;
+                connections.push({ left: selectedLeft, right: selectedRight, status: status });
+                selectedLeft.selected = false;
+                selectedRight.selected = false;
+                selectedLeft = null;
+                selectedRight = null;
+                checkWinCondition();
+            }
+        }
+
+        function undoLastMove() {
+            if (connections.length > 0) {
+                let lastConn = connections.pop();
+                lastConn.left.locked = false;
+                lastConn.left.status = 'neutral';
+                lastConn.right.locked = false;
+                lastConn.right.status = 'neutral';
+                all_correct_flag = false;
+            }
+        }
+
+        function checkWinCondition() {
+            if (connections.length === 4) {
+                let allCorrect = connections.every(c => c.status === 'correct');
+                if (allCorrect) all_correct_flag = true;
+            }
+        }
+
+        class TableCell {
+            constructor(x, y, w, h, text, id) {
+                this.x = x; this.y = y; this.w = w; this.h = h;
+                this.text = text; this.id = id;
+                this.selected = false; this.locked = false; this.status = 'neutral';
+            }
+            show() {
+                stroke(0); strokeWeight(1);
+                if (this.status === 'correct') fill(230, 255, 230);
+                else if (this.status === 'wrong') fill(255, 230, 230);
+                else if (this.selected) fill(200, 220, 255);
+                else if (this.contains(mouseX, mouseY) && !this.locked) fill(245);
+                else fill(255);
+                rect(this.x, this.y, this.w, this.h);
+                noStroke(); fill(0); textSize(16); textAlign(LEFT, CENTER);
+                text(this.text, this.x + 10, this.y, this.w - 20, this.h);
+            }
+            contains(px, py) {
+                return px > this.x && px < this.x + this.w && py > this.y && py < this.y + this.h;
+            }
+        }
+
+        // --- HTML INTERACTION SCRIPT ---
+        function reveal(key) {
+            var responses = {
+                workshop: "Fast builds happen because students teach students.",
+                hackathon: "Hackathons here launch real tools for mess halls, hostels, and clubs.",
+                build: "We design official IITM sites that stay fast even during admissions.",
+                secret: "Easter egg unlocked! Ask for the vault at our next meetup."
+            };
+            var msg = document.getElementById("message");
+            if (responses[key]) {
+                msg.textContent = responses[key];
+                msg.style.color = "#000";
+            } else {
+                msg.textContent = "Try another button.";
+            }
+        }
+    </script>
+
+    <!-- Lenis smooth scroll init -->
+    <script>
+        const lenis = new Lenis({
+            lerp: 0.045,        // Lower = more inertia/momentum ("scroll lil more")
+            duration: 2.0,      // Longer duration
+            smoothWheel: true,
+            smoothTouch: false,
+            wheelMultiplier: 0.8,
+        });
+
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        // Keep Lenis alive after idle/tab switch
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) lenis.resize();
+        });
+        window.addEventListener('focus', function () {
+            lenis.resize();
+        });
+    </script>
+</body>
+
+</html>
