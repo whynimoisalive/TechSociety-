@@ -17,7 +17,9 @@
             padding: 20px;
         }
 
-        h1, h2, h3 {
+        h1,
+        h2,
+        h3 {
             font-family: 'Times New Roman', serif;
             color: #000;
         }
@@ -27,7 +29,8 @@
             display: flex;
             justify-content: center;
             margin: 20px auto 5px auto;
-            position: relative; /* Essential for the placeholder overlay */
+            position: relative;
+            /* Essential for the placeholder overlay */
         }
 
         canvas.p5-canvas {
@@ -54,7 +57,9 @@
         }
 
         /* Form inputs */
-        input, select, textarea {
+        input,
+        select,
+        textarea {
             font-family: 'Times New Roman', serif;
             border: 1px solid #767676;
             padding: 4px;
@@ -188,6 +193,45 @@
 </head>
 
 <body>
+
+    <!-- ══ Fullscreen Prompt ══ -->
+    <div id="fs-prompt" style="
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.85); /* Semi-transparent white to match the page vibe */
+        font-family: 'Times New Roman', serif;
+    ">
+        <div style="
+            background: #fff;
+            border: 1px solid #000; /* Simple black border like the match game */
+            padding: 20px;
+            width: 300px;
+            text-align: center;
+        ">
+            <div style="font-size: 2rem; margin-bottom: 10px;">⛶</div>
+            <h2 style="margin: 0 0 10px; font-size: 1.2rem; font-weight: normal; color: #000;">
+                Immersive Experience
+            </h2>
+            <p style="margin: 0 0 15px; font-size: 1rem; color: #000;">
+                This site is best viewed in fullscreen.<br>Enter immersive mode?
+            </p>
+
+            <button
+                onclick="document.documentElement.requestFullscreen?.().catch(function(){});document.getElementById('fs-prompt').style.display='none';"
+                style="display:block; width:100%; margin-bottom: 5px; background: #000; color: #fff; border: 1px solid #000; cursor: pointer;">
+                Enter Fullscreen
+            </button>
+
+            <button onclick="document.getElementById('fs-prompt').style.display='none';"
+                style="display:block; width:100%;">
+                Continue Without
+            </button>
+        </div>
+    </div>
 
     <div id="react-container">
         <iframe id="react-app-frame" src="/app.html"></iframe>

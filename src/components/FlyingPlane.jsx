@@ -4,7 +4,8 @@ const FlyingPlane = () => {
     const sectionRef = useRef(null);
     const videoRef = useRef(null);
     const textRef = useRef(null);
-    const scrollRafRef = useRef(null);
+    const rafRef = useRef(null);
+    const cachedRef = useRef({ containerW: 0, planeWidth: 650 });
 
     useEffect(() => {
         const section = sectionRef.current;
@@ -16,56 +17,47 @@ const FlyingPlane = () => {
             video.muted = true;
             video.loop = true;
             video.playsInline = true;
-            video.play().catch(() => { });
         }
+
+        // Cache layout values   only recalc on resize
+        const cacheLayout = () => {
+            cachedRef.current.containerW = section.offsetWidth;
+            cachedRef.current.planeWidth = (video && video.offsetWidth) || 650;
+        };
+        cacheLayout();
+
+        let isVisible = false;
+        let ticking = false;
 
         function updatePosition() {
             const rect = section.getBoundingClientRect();
             const vh = window.innerHeight;
+            const { containerW, planeWidth } = cachedRef.current;
 
             const progress = Math.max(0, Math.min(1,
                 (vh - rect.top) / (vh + rect.height)
             ));
 
-            if (!video) return;
+            if (!video) { ticking = false; return; }
 
-            const containerW = section.offsetWidth;
-            const planeWidth = video.offsetWidth || 650;
-            // Right to left horizontal movement
             const x = containerW - progress * (containerW + planeWidth);
 
-            // Parabolic curve: inverted U (hill shape), peaks at progress=0.5
-            const parabolicAmplitude = 600; // EVEN MORE deeper curve
+            const parabolicAmplitude = 600;
             const parabolicY = -parabolicAmplitude * 4 * progress * (1 - progress);
 
             const opacity = progress > 0.85 ? Math.max(0, (1 - progress) / 0.15) : 1;
 
-            // Subtle wobble layered on top
-            const wobble = Math.sin(Date.now() / 400) * 6;
-
-            // Calculate rotation angle (tangent to the parabolic curve)
-            // dy/dp = -A * 4 * (1 - 2p)
-            // dx/dp = -(containerW + planeWidth) (approx constant velocity)
             const dy_dp = -parabolicAmplitude * 4 * (1 - 2 * progress);
             const dx_dp = -(containerW + planeWidth);
             const angleRad = Math.atan2(dy_dp, dx_dp);
             let angleDeg = angleRad * (180 / Math.PI);
-
-            // Plane image faces left (180 deg).
-            // Normalise angle to 0-360 range to avoid flip when damping.
             if (angleDeg < 0) angleDeg += 360;
-
-            // Rotation relative to 180 deg (Left)
-            // Damped rotation: multiply by 0.5 to reduce tilt intensity
             const rotation = (angleDeg - 180) * 0.2;
 
-            video.style.transform = `translate(${x}px, ${parabolicY + wobble}px) rotate(${rotation}deg)`;
+            video.style.transform = `translate3d(${x}px, ${parabolicY}px, 0) rotate(${rotation}deg)`;
             video.style.opacity = opacity;
 
             if (text) {
-                // Text fades in around the peak (0.5)
-                // Visible range: roughly 0.25 to 0.75
-                // Full opacity plateau: 0.35 to 0.65
                 let textOpacity = 0;
                 if (progress > 0.35 && progress < 0.65) {
                     textOpacity = 1;
@@ -74,28 +66,53 @@ const FlyingPlane = () => {
                 } else if (progress >= 0.65 && progress < 0.75) {
                     textOpacity = 1 - (progress - 0.65) / 0.1;
                 }
-
-                // Apply similar transform to text
-                // Check if we want rotation on text? "just below" usually implies following the object
-                text.style.transform = `translate(${x}px, ${parabolicY + wobble}px) rotate(${rotation}deg)`;
+                text.style.transform = `translate3d(${x}px, ${parabolicY}px, 0) rotate(${rotation}deg)`;
                 text.style.opacity = textOpacity;
             }
 
-            scrollRafRef.current = requestAnimationFrame(updatePosition);
+            ticking = false;
         }
 
-        scrollRafRef.current = requestAnimationFrame(updatePosition);
+        const handleScroll = () => {
+            if (!isVisible || ticking) return;
+            ticking = true;
+            rafRef.current = requestAnimationFrame(updatePosition);
+        };
+
+        // Visibility observer   pause/resume video & animation
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                isVisible = entry.isIntersecting;
+                if (video) {
+                    if (isVisible) {
+                        video.play().catch(() => { });
+                        handleScroll(); // initial position update
+                    } else {
+                        video.pause();
+                    }
+                }
+            },
+            { rootMargin: '300px' }
+        );
+        observer.observe(section);
+
+        const handleResize = () => { cacheLayout(); handleScroll(); };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        window.addEventListener('resize', handleResize, { passive: true });
 
         return () => {
-            if (scrollRafRef.current) cancelAnimationFrame(scrollRafRef.current);
+            observer.disconnect();
+            window.removeEventListener('scroll', handleScroll);
+            window.removeEventListener('resize', handleResize);
+            if (rafRef.current) cancelAnimationFrame(rafRef.current);
         };
     }, []);
-
-
 
     return (
         <section
             ref={sectionRef}
+            className="flying-plane-section"
             style={{
                 position: 'relative',
                 height: '45vh',
@@ -104,41 +121,72 @@ const FlyingPlane = () => {
                 zIndex: 5,
             }}
         >
+            <style>{`
+                @media (max-width: 1440px) and (max-height: 900px) {
+                    .flying-plane-section {
+                        height: 35vh !important;
+                    }
+                    .flying-plane-video {
+                        width: 580px !important;
+                    }
+                    .flying-plane-text {
+                        width: 580px !important;
+                        font-size: 1.2rem !important;
+                        margin-top: 310px !important;
+                    }
+                }
+                @media (max-height: 768px) {
+                    .flying-plane-section {
+                        height: 30vh !important;
+                    }
+                    .flying-plane-video {
+                        width: 500px !important;
+                    }
+                    .flying-plane-text {
+                        width: 500px !important;
+                        font-size: 1rem !important;
+                        margin-top: 270px !important;
+                    }
+                }
+            `}</style>
             <video
                 ref={videoRef}
                 src="/flight.mp4"
                 muted
                 loop
                 playsInline
+                preload="auto"
+                className="flying-plane-video"
                 style={{
                     position: 'absolute',
-                    top: '120%', // Start lower so the high arc fits
+                    top: '120%',
                     left: 0,
                     width: '780px',
                     height: 'auto',
-                    willChange: 'transform, opacity',
+                    willChange: 'transform',
                     pointerEvents: 'none',
                     zIndex: 5,
                 }}
             />
             <div
                 ref={textRef}
+                className="flying-plane-text"
                 style={{
                     position: 'absolute',
                     top: '120%',
                     left: 0,
-                    width: '780px', // Match video width for centering
+                    width: '780px',
                     textAlign: 'center',
                     fontFamily: "'StampatelloFaceto', cursive",
-                    fontSize: '1.5rem', // Slightly larger than p but matching style
+                    fontSize: '1.5rem',
                     fontWeight: 400,
                     color: '#414eb6',
-                    willChange: 'transform, opacity',
+                    willChange: 'transform',
                     pointerEvents: 'none',
                     zIndex: 5,
                     opacity: 0,
-                    marginTop: '420px', // Increased margin to be significantly below video
-                    textShadow: '0 2px 4px rgba(0,0,0,0.1)', // Optional legibility
+                    marginTop: '420px',
+                    textShadow: '0 2px 4px rgba(0,0,0,0.1)',
                 }}
             >
                 1903 Wright Flyer I
@@ -148,3 +196,4 @@ const FlyingPlane = () => {
 };
 
 export default FlyingPlane;
+

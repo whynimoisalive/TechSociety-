@@ -3,9 +3,10 @@ import React from 'react';
 const Hero = () => {
     return (
         <section
+            className="hero-section"
             style={{
                 position: 'relative',
-                marginTop: '85px', // Push hero below the fixed header
+                marginTop: '85px',
                 display: 'grid',
                 placeItems: 'center',
                 width: '100%',
@@ -41,7 +42,7 @@ const Hero = () => {
             }}>
                 {/* Date/Tagline */}
                 <div className="fade-in-up delay-100" style={{ marginBottom: '1.5rem' }}>
-                    <p style={{
+                    <p className="hero-tagline" style={{
                         fontSize: '0.9rem',
                         fontFamily: "'Bodoni Moda', serif",
                         letterSpacing: '0.3em',
@@ -54,7 +55,7 @@ const Hero = () => {
 
                 {/* Main Title */}
                 <div className="fade-in-up delay-200" style={{ position: 'relative', zIndex: 10 }}>
-                    <h1 style={{
+                    <h1 className="hero-title" style={{
                         fontFamily: "'Bodoni Moda', serif",
                         fontSize: 'clamp(6rem, 10vw, 8rem)',
                         lineHeight: 0.9,
@@ -67,7 +68,7 @@ const Hero = () => {
                 </div>
 
                 {/* Subtitle */}
-                <div className="fade-in-up delay-300" style={{ marginTop: '2rem', maxWidth: '500px' }}>
+                <div className="fade-in-up delay-300 hero-subtitle" style={{ marginTop: '2rem', maxWidth: '500px' }}>
                     <p style={{
                         color: '#414eb6',
                         fontWeight: 500,
@@ -82,7 +83,7 @@ const Hero = () => {
 
                 {/* Animated Arrow */}
                 <div
-                    className="fade-in-up delay-300"
+                    className="fade-in-up delay-300 hero-arrow"
                     style={{
                         marginTop: '3rem', // Add spacing since it's now in flow or we can keep absolute but relative to this wrapper
                         color: '#1E3A8A',
@@ -100,6 +101,38 @@ const Hero = () => {
                     0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
                     40% { transform: translateX(-50%) translateY(-10px); }
                     60% { transform: translateX(-50%) translateY(-5px); }
+                }
+
+                /* Laptop-optimized scaling */
+                @media (max-width: 1440px) and (max-height: 900px) {
+                    .hero-section {
+                        margin-top: 65px !important;
+                    }
+                    .hero-title {
+                        font-size: clamp(4rem, 8vw, 6rem) !important;
+                    }
+                    .hero-tagline {
+                        font-size: 0.75rem !important;
+                    }
+                    .hero-subtitle {
+                        font-size: clamp(0.65rem, 1.5vw, 0.85rem) !important;
+                        margin-top: 1.2rem !important;
+                    }
+                    .hero-arrow {
+                        margin-top: 1.5rem !important;
+                    }
+                }
+
+                @media (max-height: 768px) {
+                    .hero-section {
+                        margin-top: 55px !important;
+                    }
+                    .hero-title {
+                        font-size: clamp(3.5rem, 7vw, 5rem) !important;
+                    }
+                    .hero-subtitle {
+                        margin-top: 1rem !important;
+                    }
                 }
             `}</style>
         </section>

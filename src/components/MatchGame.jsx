@@ -309,6 +309,7 @@ const MatchGame = () => {
     return (
         <section
             ref={sectionRef}
+            className="match-game-section"
             style={{
                 padding: '60px 20px 80px',
                 background: '#d9d8dd',
@@ -317,9 +318,51 @@ const MatchGame = () => {
                 transition: 'opacity 0.8s ease-out, transform 0.8s ease-out',
             }}
         >
+            <style>{`
+                @media (max-width: 1440px) and (max-height: 900px) {
+                    .match-game-section {
+                        padding: 40px 16px 60px !important;
+                    }
+                    .match-game-title {
+                        font-size: clamp(1.6rem, 4vw, 2.4rem) !important;
+                    }
+                    .match-game-instruction {
+                        font-size: 0.85rem !important;
+                        margin-bottom: 30px !important;
+                    }
+                    .match-game-col-header {
+                        font-size: 1.6rem !important;
+                    }
+                    .match-game-left-item {
+                        font-size: 1.3rem !important;
+                        padding: 8px 12px !important;
+                    }
+                    .match-game-right-item {
+                        font-size: 1.1rem !important;
+                        padding: 8px 12px !important;
+                    }
+                    .match-game-btn {
+                        font-size: 1.1rem !important;
+                    }
+                }
+                @media (max-height: 768px) {
+                    .match-game-section {
+                        padding: 30px 12px 40px !important;
+                    }
+                    .match-game-title {
+                        font-size: clamp(1.4rem, 3.5vw, 2rem) !important;
+                    }
+                    .match-game-left-item {
+                        font-size: 1.1rem !important;
+                    }
+                    .match-game-right-item {
+                        font-size: 1rem !important;
+                    }
+                }
+            `}</style>
             <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
                 {/* Title - Hero Style */}
-                <h2 style={{
+                <h2 className="match-game-title" style={{
                     fontFamily: heroFont,
                     fontSize: 'clamp(2rem, 5vw, 3rem)',
                     fontWeight: '400',
@@ -332,7 +375,7 @@ const MatchGame = () => {
                 </h2>
 
                 {/* Instruction - Hero Style */}
-                <p style={{
+                <p className="match-game-instruction" style={{
                     fontFamily: heroFont,
                     color: heroColor,
                     textAlign: 'center',
@@ -392,7 +435,7 @@ const MatchGame = () => {
                     }}>
                         {/* Left Column - Terms */}
                         <div style={{ width: '38%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            <div style={{
+                            <div className="match-game-col-header" style={{
                                 fontFamily: handwrittenFont,
                                 fontSize: '2rem',
                                 color: heroColor,
@@ -412,6 +455,7 @@ const MatchGame = () => {
                                     <div
                                         key={item.id}
                                         id={`left-${item.id}`}
+                                        className="match-game-left-item"
                                         onMouseDown={(e) => handleMouseDown(item, 'left', e)}
                                         style={{
                                             fontFamily: handwrittenFont,
@@ -435,7 +479,7 @@ const MatchGame = () => {
 
                         {/* Right Column - Definitions */}
                         <div style={{ width: '55%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            <div style={{
+                            <div className="match-game-col-header" style={{
                                 fontFamily: handwrittenFont,
                                 fontSize: '2rem',
                                 color: heroColor,
@@ -454,6 +498,7 @@ const MatchGame = () => {
                                     <div
                                         key={item.id}
                                         id={`right-${item.id}`}
+                                        className="match-game-right-item"
                                         onMouseDown={(e) => handleMouseDown(item, 'right', e)}
                                         style={{
                                             fontFamily: handwrittenFont,
