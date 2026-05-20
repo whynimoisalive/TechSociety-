@@ -141,7 +141,7 @@ const BelowHero = () => {
                             color: '#414eb6',
                             fontWeight: 400,
                         }}>
-                            Tech Society IITM brings curious minds together to explore, prototype, and ship practical technology. We support IITM students, guide budding developers, and keep IITM's digital presence reliable and accessible. We believe learning should move beyond theory into real execution. Our goal is to create an environment where students build systems that people actually use. From beginners writing their first programs to experienced members deploying full-scale applications, we create a clear path for growth.
+                            Tech Society IITM brings curious minds together to explore, prototype, and ship practical technology. With a primary focus on Web Development and Machine Learning, we support IITM students, guide budding developers, and keep IITM's digital presence reliable and accessible. We believe learning should move beyond theory into real execution. Our goal is to create an environment where students build systems that people actually use. From beginners writing their first programs to experienced members deploying full-scale applications, we create a clear path for growth.
                         </p>
 
                         <p className="below-hero-text" style={{
@@ -151,7 +151,7 @@ const BelowHero = () => {
                             color: '#414eb6',
                             fontWeight: 400,
                         }}>
-                            The society bridges curiosity and capability through structured learning, hands-on build sessions, and real-world projects. Members learn how to plan, collaborate, debug, and deliver reliable solutions. We focus on impact by building tools that solve real IITM needs, improve student services, and strengthen campus operations. Reliability, performance, and usability are treated as essential engineering standards.
+                            The society bridges curiosity and capability through structured learning, hands-on build sessions, and real-world projects. Members learn how to plan, collaborate, debug, and deliver reliable solutions. We focus on impact by building tools that solve real IITM needs such as developing the official Student Activity Site for the IITM BS program to improve student services and strengthen campus operations. Reliability, performance, and usability are treated as essential engineering standards.
                         </p>
 
                         <p className="below-hero-text" style={{

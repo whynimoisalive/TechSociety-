@@ -124,7 +124,7 @@ const ContactUs = () => {
             year: '2025',
             desc: "The official IITM BS democratic platform. 40,000+ students, real-time voting, seamless secure architecture.",
             link: "View Case Study",
-            zIndex: 1
+            zIndex: 8
         },
         {
             id: '02',
@@ -133,7 +133,7 @@ const ContactUs = () => {
             year: '2025',
             desc: "The digital face of IITM's biggest fest. An immersive web experience connecting students across the globe.",
             link: "Visit Site",
-            zIndex: 2
+            zIndex: 7
         },
         {
             id: '03',
@@ -142,7 +142,52 @@ const ContactUs = () => {
             year: '2026',
             desc: "A unified ecosystem for student life. One dashboard to manage, discover, and track every campus activity.",
             link: "Learn More",
+            zIndex: 6
+        },
+        {
+            id: '04',
+            title: 'Quantageddon',
+            tags: ['Algo Trading', 'Competition'],
+            year: '2026',
+            desc: "The premier quantitative algorithmic trading event. Participants build, test, and deploy automated trading strategies to conquer simulated financial markets.",
+            link: "View Leaderboard",
+            zIndex: 5
+        },
+        {
+            id: '05',
+            title: 'DataVista',
+            tags: ['Machine Learning', 'Hackathon'],
+            year: '2026',
+            desc: "An intensive machine learning showdown. Teams engineer, train, and optimize predictive models to solve complex real-world data challenges.",
+            link: "See Models",
+            zIndex: 4
+        },
+        {
+            id: '06',
+            title: 'Policy Forge',
+            tags: ['Strategy', 'Policy Drafting'],
+            year: '2026',
+            desc: "A strategic policy drafting competition. Students analyze tech-centric issues and formulate comprehensive frameworks to navigate the digital future.",
+            link: "Read Policies",
             zIndex: 3
+        },
+        {
+            id: '07',
+            title: 'CIA',
+            tags: ['Cybersecurity', 'CTF'],
+            year: '2026',
+            desc: "A rigorous cybersecurity and intelligence challenge. Teams race against the clock to crack cryptography, reverse engineer systems, and secure digital assets.",
+            link: "View Challenge",
+            zIndex: 2
+        },
+        {
+            id: '08',
+            title: '1815 Hackathon',
+            tags: ['Flagship Event', 'Data Science'],
+            year: '2026',
+            desc: "Our flagship event exploring the vast ecosystem of tools in Data Science. A hands-on experience celebrating the legacy of the first programmer through collaborative innovation.",
+            link: "Explore Event",
+            zIndex: 1
         }
     ]);
 
@@ -378,14 +423,6 @@ const ContactUs = () => {
                     ))}
                 </div>
 
-                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', paddingLeft: 'calc(2% + 1rem)' }}>
-                    <a href="#" onMouseEnter={() => setTeamBtnHover(true)} onMouseLeave={() => setTeamBtnHover(false)}
-                        style={{ display: 'inline-block', padding: '14px 36px', fontFamily: "'Bodoni Moda', serif", fontSize: '0.8rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: teamBtnHover ? '#ffffff' : '#0a0a0a', textDecoration: 'none', border: '1px solid #0a0a0a', background: teamBtnHover ? '#0a0a0a' : 'transparent', transition: 'all 0.3s ease', cursor: 'pointer' }}
-                    >
-                        See Full Team
-                    </a>
-                </div>
-
             </section>
 
             {/* ════════════════ SELECTED WORKS (BLUE INK PILE) ════════════════ */}
@@ -416,17 +453,30 @@ const ContactUs = () => {
 
                 {/* DRAGGABLE PLAYGROUND */}
                 <div className="project-playground" ref={containerRef}>
-                    {projects.map((project, i) => (
-                        <DraggableCard
-                            key={project.id}
-                            project={project}
-                            index={i}
-                            updateZIndex={bringToFront}
-                            initialX={i === 0 ? -150 : i === 1 ? 20 : 190}
-                            initialY={i === 0 ? 50 : i === 1 ? -60 : 60}
-                            initialRotate={i === 0 ? -5 : i === 1 ? 2 : 4}
-                        />
-                    ))}
+                    {projects.map((project, i) => {
+                        const positions = [
+                            { x: -280, y: 30, r: -5 },
+                            { x: -100, y: -40, r: 2 },
+                            { x: 80, y: 50, r: 4 },
+                            { x: 260, y: -20, r: -3 },
+                            { x: -200, y: 120, r: 6 },
+                            { x: -20, y: 60, r: -4 },
+                            { x: 160, y: 140, r: 3 },
+                            { x: 340, y: 50, r: -2 }
+                        ];
+                        const pos = positions[i % positions.length];
+                        return (
+                            <DraggableCard
+                                key={project.id}
+                                project={project}
+                                index={i}
+                                updateZIndex={bringToFront}
+                                initialX={pos.x}
+                                initialY={pos.y}
+                                initialRotate={pos.r}
+                            />
+                        );
+                    })}
                 </div>
             </div>
 

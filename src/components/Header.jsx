@@ -92,7 +92,9 @@ const Header = () => {
                 {/* Right Action */}
                 <div>
                     <a
-                        href="#"
+                        href="https://forms.gle/Sen5mBvzF8ZqQmGNA"
+                        target="_blank"
+                        rel="noreferrer"
                         className="join-btn"
                     >
                         Join Us
